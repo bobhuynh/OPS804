@@ -1,0 +1,70 @@
+---
+title: "An Analysis of ER Waiting Times: Is there a Statistically Significant difference between the Main Hospital and Satellite Hospitals?"
+subtitle: "An implementation in R Markdown"
+author: "Student # 0940532"
+date: "`r Sys.Date()`"
+output:
+
+  tufte::tufte_handout:
+    citation_package: natbib
+    latex_engine: xelatex
+  tufte::tufte_book:
+    citation_package: natbib
+    latex_engine: xelatex
+bibliography: skeleton.bib
+link-citations: yes
+---
+
+```{r setup, include=FALSE}
+setwd("C:\\GitHub\\kh28\\Class2\\Cars")
+source("ER.R")
+library(tufte)
+# invalidate cache when the tufte version changes
+knitr::opts_chunk$set(tidy = FALSE, cache.extra = packageVersion('tufte'))
+options(htmltools.dir.version = FALSE)
+library(knitr)
+```
+
+# Introduction
+In this dataset, we look at the Emergency Room (ER) waiting times across the San Francisco Hospital System. In particular, we analyze the ER wait times of the Main Hospital and the remaining 3 Satetllite hospitals over a period of 15 days to determine if there is a statisticaly significant difference among the 4 hospitals. From this analysis, we will determine if there are opportunities for improvement in the San Francisco Hospital System.
+
+# Descriptive Stats
+The starting point for our analysis is of course the descriptive statistics. We can see from the descriptive stats below, there is quite a lot of variability in the datset (look at standard deviation as a percentage of the mean). The mean wait time for the Main hospital is the highest, whereas Satellite 1 is the lowest. The range for the Main and Satellite 3 are tied at the highest, whereas Satellite 2 is the lowest. We do not have a clear picture from these descriptive stats of which hospital is doing better.
+```{r}
+print(ER.desc)
+```
+
+# ANOVA Results
+Since the descriptive stats did not shed much light, we use ANOVA to see if there is a statistically significant difference between the average wait times across the 4 hospitals. We focus our analysis based on the following hypothesis:
+
+HO: All hospital wait times are the same
+HA: At least one hospital does not have the same wait times
+
+Alpha =5%
+Decision Rule: Reject HO if p-value < alpha
+
+From the ANOVA results below, we can see that the P-value is 0.000859, so we can reject the null hypothesis. There is not enough evidence to suggest that all hospital wait times are the same, and we can conclude that at least one hospital has a different wait time.
+```{r}
+print(ER.aov.summary)
+```
+
+# Tukey Test
+The p-value from the ANOVA test above suggests that at least one hospital has a statistically significant wait time, but which one? We employ the Tukey-Kramer test to identify the pairs. From the results below, we can see that Sat1 - Main and Sat 3 - Main are each less than 0.05, so these are the only groups that differ statistically from each other.
+```{r}
+print(ER.tukey)
+```
+
+# Normality of Data
+One of the assumptions our analysis is based on is that the data is normal. From the descriptive stats, all of the hospitals have a skewness between -1 and 1 (but the Main hospital is slightly above 1). The Shapiro-Wilk test yielded values greater than 0.05 for all 4 hospitals. And finally, the plots show that sample follows roughly a straight line, so there is enough evidence to conclude the data is normal.
+```{r}
+print(qqp)
+```
+# Homogenity of Variances
+Lastly, we check to see if variances are equal (or close). From the results of Levene's test below, we see that the P-value is greater than 0.05, so we can reject the null and conclude that all variances in the groups are the same.
+```{r}
+print(ER.levene)
+```
+
+
+# Conclusion
+From our analysis, we can conclude that not all hospitals have the same ER wait times. The differences between the Main hospital and Satellite 1, and Main and Satellite 3 are statistically different. We should further investigate why they are different and see if there are opportunities to improve ER wait times.
